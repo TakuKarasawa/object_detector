@@ -1,0 +1,44 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/amsl/catkin_ws/devel/include/**",
+                "/opt/ros/noetic/include/**",
+                "/home/amsl/catkin_ws/src/color_detector/color_detector_params/include/**",
+                "/home/amsl/catkin_ws/src/multi_robot/create_reference_dataset/include/**",
+                "/home/amsl/catkin_ws/src/darknet_ros/darknet_ros/include/**",
+                "/home/amsl/catkin_ws/src/DynamixelSDK/ros/dynamixel_sdk/include/**",
+                "/home/amsl/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_controllers/include/**",
+                "/home/amsl/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_operators/include/**",
+                "/home/amsl/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include/**",
+                "/home/amsl/catkin_ws/src/color_detector/image_color_detector/include/**",
+                "/home/amsl/catkin_ws/src/multi_robot/image_convertor/include/**",
+                "/home/amsl/catkin_ws/src/multi_robots/image_editor/include/**",
+                "/home/amsl/catkin_ws/src/multi_robot/localization/include/**",
+                "/home/amsl/catkin_ws/src/multi_robots/multi_robots_tf/include/**",
+                "/home/amsl/catkin_ws/src/color_detector/point_cloud_color_detector/include/**",
+                "/home/amsl/catkin_ws/src/multi_robots/pole_eliminator/include/**",
+                "/home/amsl/catkin_ws/src/Roomba/roomba_500driver_meiji/include/**",
+                "/home/amsl/catkin_ws/src/roomba_dynamixel_tools/roomba_dynamixel_controller/include/**",
+                "/home/amsl/catkin_ws/src/multi_robots/roomba_visualizer/include/**",
+                "/home/amsl/catkin_ws/src/multi_robot/test_color_detect/include/**",
+                "/home/amsl/catkin_ws/src/multi_robot/tf_tools/include/**",
+                "/home/amsl/catkin_ws/src/theta_s_ros/include/**",
+                "/home/amsl/catkin_ws/src/tutorial/tutorial_opencv/include/**",
+                "/home/amsl/catkin_ws/src/tutorial/tutorial_pcl/include/**",
+                "/home/amsl/catkin_ws/src/tutorial/tutorial_turtlesim/include/**",
+                "/usr/include/**",
+                "/usr/include/pcl-1.10",
+                "/opt/ros/noetic/include",
+                "${workspaceFolder}/include",
+                "/usr/include/eigen3"
+            ],
+            "name": "ROS"
+        }
+    ],
+    "version": 4
+}
