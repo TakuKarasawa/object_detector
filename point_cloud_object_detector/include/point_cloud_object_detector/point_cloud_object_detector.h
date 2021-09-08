@@ -14,6 +14,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "darknet_ros_msgs/BoundingBox.h"
 #include "darknet_ros_msgs/BoundingBoxes.h"
@@ -30,6 +31,7 @@ private:
 
     void check_bbox(darknet_ros_msgs::BoundingBox bbox);
     void bbox_process();
+    void bbox_process_2();
 
     bool has_received_bbox = false;
     bool has_received_pcl2 = false;

@@ -33,8 +33,10 @@ void PointCloudObjectDetector::check_bbox(darknet_ros_msgs::BoundingBox bbox)
     std::cout << std::endl;
 }
 
+/*
 void PointCloudObjectDetector::bbox_process()
 {
+    // change bboxes loop!
     for(size_t i = 0; i < bboxes.bounding_boxes.size(); i++){
         if(bboxes.bounding_boxes[i].xmin == pre_bboxes.bounding_boxes[i].xmin && bboxes.bounding_boxes[i].xmax == pre_bboxes.bounding_boxes[i].xmax && bboxes.bounding_boxes[i].ymin == pre_bboxes.bounding_boxes[i].ymin && bboxes.bounding_boxes[i].ymax == pre_bboxes.bounding_boxes[i].ymax) {}
         else{
@@ -68,6 +70,37 @@ void PointCloudObjectDetector::bbox_process()
                 }
             }
             pre_bboxes = bboxes;            
+        }
+    }
+}
+*/
+
+void PointCloudObjectDetector::bbox_process()
+{
+    for(const auto &b : bboxes.bounding_boxes){
+        std::cout << b.Class << std::endl;
+        std::vector<float> points;
+        std::vector<std::vector<float>> z_points(cloud->height,std::vector<float>());
+        std::vector<float> z_value;
+        
+        for(const auto &p : cloud->points) points.push_back(p.z);
+
+        if(points.size() == cloud->width*cloud->height){
+            for(int i = 0; i < cloud->height; i++){
+                for(int j = 0; j < cloud->width; j++){
+                    z_points.at(i).push_back(points.at(i*cloud->width+j));
+                }
+            }
+
+            if(!(b.xmin == 0 && b.xmax == 0)){
+                for(int x = b.xmin; x <= b.xmax; x++){
+                    for(int y = b.ymin; y <= b.ymax; y++){
+                        z_value.push_back(z_points.at(y).at(x));
+                    }
+                }
+                double dist = *min_element(z_value.begin(),z_value.end());
+                std::cout << dist << std::endl;
+            }
         }
     }
 }
