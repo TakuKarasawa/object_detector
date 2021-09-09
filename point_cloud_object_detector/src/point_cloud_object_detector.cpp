@@ -4,6 +4,8 @@ PointCloudObjectDetector::PointCloudObjectDetector(ros::NodeHandle nh,ros::NodeH
 {
     pc_sub_ = nh_.subscribe("/camera/depth_registered/points",1,&PointCloudObjectDetector::sensor_callback,this);
     bbox_sub_ = nh_.subscribe("/darknet_ros/bounding_boxes",1,&PointCloudObjectDetector::bbox_callback,this);
+
+    pos_pub_ = nh.advertise<object_detector_msgs::ObjectPositions>("/out",1);
 }
 
 void PointCloudObjectDetector::sensor_callback(const sensor_msgs::PointCloud2ConstPtr& msg)
@@ -11,15 +13,13 @@ void PointCloudObjectDetector::sensor_callback(const sensor_msgs::PointCloud2Con
     has_received_pcl2 = true;
     cloud->points.clear();
     pcl::fromROSMsg(*msg,*cloud);
-    //ROS_INFO("Subscribed pcl");
 }
-
 
 void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBoxesConstPtr& msg)
 {
     has_received_bbox = true;
+    //bboxes.bounding_boxes.clear();
     bboxes = *msg;
-    //ROS_INFO("Subscribed bbox");
 }
 
 void PointCloudObjectDetector::check_bbox(darknet_ros_msgs::BoundingBox bbox)
@@ -92,7 +92,6 @@ void PointCloudObjectDetector::bbox_process_2()
                 }
             }
 
-            
             if(!(b.xmin == 0 && b.xmax == 0)){
                 for(int x = b.xmin; x <= b.xmax; x++){
                     for(int y = b.ymin; y <= b.ymax; y++){
@@ -123,8 +122,9 @@ void PointCloudObjectDetector::bbox_process_2()
 
                 double d = sqrt(pow(sum_x,2)+pow(sum_z,2));
                 double theta = atan2(sum_z,sum_x) - M_PI/2;
-                std::cout << "d: " << d << std::endl;
-                std::cout << "theta: " << theta << std::endl;
+                std::cout << "distance[m]: : " << d << std::endl;
+                std::cout << "theta[rad] : " << theta << std::endl;
+                std::cout << "theta[deg] : " << theta * 180/M_PI << std::endl;
 
             }
         }

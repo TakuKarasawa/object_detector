@@ -19,6 +19,7 @@
 #include "darknet_ros_msgs/BoundingBox.h"
 #include "darknet_ros_msgs/BoundingBoxes.h"
 #include "object_detector_msgs/ObjectPosition.h"
+#include "object_detector_msgs/ObjectPositions.h"
 
 class PointCloudObjectDetector {
 public:
@@ -37,8 +38,6 @@ private:
     bool has_received_pcl2 = false;
     
     darknet_ros_msgs::BoundingBoxes bboxes;
-    darknet_ros_msgs::BoundingBoxes pre_bboxes;
-    //sensor_msgs::PointCloud2 pc;
 
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud {new pcl::PointCloud<pcl::PointXYZRGB>};
 
