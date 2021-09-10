@@ -75,6 +75,8 @@ void PointCloudObjectDetector::bbox_process()
                 sum_y /= (double)finite_count;
                 sum_z /= (double)finite_count;
 
+                positions.header.frame_id = "base_link";
+                positions.header.stamp = ros::Time::now();
                 position.Class = b.Class;
                 position.probability = b.probability;
                 position.x = sum_x;
