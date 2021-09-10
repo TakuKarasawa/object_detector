@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="point_cloud_object_detector" type="point_cloud_object_detector_node" name="object_detector" output="screen" />
+</launch>
