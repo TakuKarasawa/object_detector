@@ -38,7 +38,7 @@ void PointCloudObjectDetector::bbox_process()
     for(const auto &b : bboxes.bounding_boxes){
         std::cout << "Object_Class: " << b.Class << std::endl;
         std::vector<pcl::PointXYZRGB> points;
-        std::vector<std::vector<pcl::PointXYZRGB>> rearranged_points(cloud->height,std::vector<pcl::PointXYZRGB>());
+        std::vector<std::vector<pcl::PointXYZRGB>> rearranged_points(cloud->height+1,std::vector<pcl::PointXYZRGB>());
         std::vector<pcl::PointXYZRGB> values;
         object_detector_msgs::ObjectPosition position;
         
