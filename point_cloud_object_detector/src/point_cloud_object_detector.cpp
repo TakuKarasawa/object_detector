@@ -36,7 +36,7 @@ void PointCloudObjectDetector::bbox_process()
 {
     object_detector_msgs::ObjectPositions positions;
     for(const auto &b : bboxes.bounding_boxes){
-        std::cout << b.Class << std::endl;
+        std::cout << "Object_Class: " << b.Class << std::endl;
         std::vector<pcl::PointXYZRGB> points;
         std::vector<std::vector<pcl::PointXYZRGB>> rearranged_points(cloud->height,std::vector<pcl::PointXYZRGB>());
         std::vector<pcl::PointXYZRGB> values;
@@ -83,16 +83,21 @@ void PointCloudObjectDetector::bbox_process()
                 position.y = sum_y;
                 position.z = sum_z;
 
+                std::cout << "(X,Y,Z): " << "(" << sum_x << "," << sum_y << "," << sum_z << ")" << std::endl;
+                
+                /*
                 std::cout << "x: " << sum_x << std::endl;
                 std::cout << "y: " << sum_y << std::endl;
                 std::cout << "z: " << sum_z << std::endl;
-
+                */
+                
                 double d = sqrt(pow(sum_x,2)+pow(sum_z,2));
                 double theta = atan2(sum_z,sum_x) - M_PI/2;
                 
                 std::cout << "distance[m]: : " << d << std::endl;
                 std::cout << "theta[rad] : " << theta << std::endl;
-                std::cout << "theta[deg] : " << theta * 180/M_PI << std::endl;
+                std::cout << std::endl;
+                //std::cout << "theta[deg] : " << theta * 180/M_PI << std::endl;
             }
         }
         positions.header = bboxes.header;
