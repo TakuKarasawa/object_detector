@@ -4,7 +4,7 @@ PointCloudObjectDetector::PointCloudObjectDetector() : private_nh_("~")
 {
     pc_sub_ = nh_.subscribe("/camera/depth_registered/points",1,&PointCloudObjectDetector::sensor_callback,this);
     bbox_sub_ = nh_.subscribe("/darknet_ros/bounding_boxes",1,&PointCloudObjectDetector::bbox_callback,this);
-    obj_pub_ = nh_.advertise<object_detector_msgs::ObjectPositions>("/out",1);
+    obj_pub_ = nh_.advertise<object_detector_msgs::ObjectPositions>("/object_positions",1);
 }
 
 void PointCloudObjectDetector::sensor_callback(const sensor_msgs::PointCloud2ConstPtr& msg)
@@ -29,7 +29,7 @@ void PointCloudObjectDetector::calc_object_position()
         std::vector<std::vector<pcl::PointXYZRGB>> rearranged_points(cloud->height,std::vector<pcl::PointXYZRGB>());
         std::vector<pcl::PointXYZRGB> values;
         object_detector_msgs::ObjectPosition position;
-        
+
         for(const auto &p : cloud->points) points.push_back(p);
 
         if(points.size() == cloud->width*cloud->height){
@@ -45,7 +45,7 @@ void PointCloudObjectDetector::calc_object_position()
                         values.push_back(rearranged_points.at(y).at(x));
                     }
                 }
-                
+
                 double sum_x = 0.0;
                 double sum_y = 0.0;
                 double sum_z = 0.0;
@@ -58,7 +58,7 @@ void PointCloudObjectDetector::calc_object_position()
                         finite_count ++;
                     }
                 }
-                
+
                 positions.header.frame_id = "base_link";
                 positions.header.stamp = ros::Time::now();
                 position.Class = b.Class;
@@ -68,10 +68,10 @@ void PointCloudObjectDetector::calc_object_position()
                 position.z = sum_z/(double)finite_count;
 
                 std::cout << "(X,Y,Z): " << "(" << sum_x << "," << sum_y << "," << sum_z << ")" << std::endl;
-                
+
                 double d = sqrt(pow(sum_x,2)+pow(sum_z,2));
                 double theta = atan2(sum_z,sum_x) - M_PI/2;
-                
+
                 std::cout << "distance[m]: : " << d << std::endl;
                 std::cout << "theta[rad] : " << theta << std::endl;
                 std::cout << std::endl;
@@ -90,5 +90,5 @@ void PointCloudObjectDetector::process()
         if(has_received_bbox && has_received_pcl2) calc_object_position();
         ros::spinOnce();
         rate.sleep();
-    }   
+    }
 }
