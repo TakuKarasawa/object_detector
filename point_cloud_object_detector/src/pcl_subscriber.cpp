@@ -16,25 +16,12 @@ private:
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud {new pcl::PointCloud<pcl::PointXYZRGB>};
 		cloud->points.clear();
 		pcl::fromROSMsg(*msg,*cloud);
-
-		//pcl::PointCloud<pcl::PointXYZRGB>::Ptr  cloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>();
-		//pcl::fromROSMsg(*msg,*cloud);
-		//sensor_msgs::PointCloud out_pc;
-		//sensor_msgs::convertPointCloud2ToPointCloud(*msg,out_pc);
+		
 		for(size_t i = 0; i < cloud->points.size(); i++){
 			std::cout << "Cloud[" << i << "]: (" 
 			          << cloud->points[i].x << ","
-				  << cloud->points[i].y << ","
-				  << cloud->points[i].z << ")" << std::endl;
-
-			/*
-			std::cout << "Cloud[" << i << "]: (" 
-			          << out_pc.points[i].x << ","
-				  << out_pc.points[i].y << ","
-				  << out_pc.points[i].z << ")" << std::endl;
-			*/
-			
-			//if(msg->data[i] != NULL) std::cout << "Data[" << i << "]: " << msg->data[i] << std::endl;
+				  	  << cloud->points[i].y << ","
+				      << cloud->points[i].z << ")" << std::endl;
 		}
 		std::cout << std::endl;
 	}

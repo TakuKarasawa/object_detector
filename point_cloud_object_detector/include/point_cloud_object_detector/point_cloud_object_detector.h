@@ -14,7 +14,6 @@
 
 #include <string>
 #include <vector>
-#include <algorithm>
 
 #include "darknet_ros_msgs/BoundingBox.h"
 #include "darknet_ros_msgs/BoundingBoxes.h"
@@ -23,30 +22,25 @@
 
 class PointCloudObjectDetector {
 public:
-    PointCloudObjectDetector(ros::NodeHandle nh = ros::NodeHandle(),ros::NodeHandle private_nh = ros::NodeHandle("~"));
+    PointCloudObjectDetector();
     void process();
 
 private:
     void sensor_callback(const sensor_msgs::PointCloud2ConstPtr& msg);
     void bbox_callback(const darknet_ros_msgs::BoundingBoxesConstPtr& msg);
-
-    void check_bbox(darknet_ros_msgs::BoundingBox bbox);
-    void bbox_process();
-    void bbox_process_2();
+    void calc_object_position();
 
     bool has_received_bbox = false;
     bool has_received_pcl2 = false;
     
     darknet_ros_msgs::BoundingBoxes bboxes;
-
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud {new pcl::PointCloud<pcl::PointXYZRGB>};
 
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;
-
     ros::Subscriber pc_sub_;
     ros::Subscriber bbox_sub_;
-    ros::Publisher pos_pub_;
+    ros::Publisher obj_pub_;
 };
 
 #endif  // POINT_CLOUD_OBJECT_DETECTOR_H_
