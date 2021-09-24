@@ -29,11 +29,11 @@ add_library(${PROJECT_NAME} src/point_cloud_object_detector.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 add_executable(point_cloud_object_detector_node src/point_cloud_object_detector_node.cpp src/point_cloud_object_detector.cpp)
-
 add_dependencies(point_cloud_object_detector_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
 target_link_libraries(point_cloud_object_detector_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-
 
 add_executable(pcl_subscriber src/pcl_subscriber.cpp)
 target_link_libraries(pcl_subscriber ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(bboxes_subscriber src/bboxes_subscriber.cpp)
+target_link_libraries(bboxes_subscriber ${catkin_LIBRARIES} ${PCL_LIBRARIES})
