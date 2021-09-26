@@ -18,8 +18,8 @@ private:
             std::cout << "Class: " << msg->bounding_boxes[i].Class << std::endl;
             std::cout << "Id: " << msg->bounding_boxes[i].id << std::endl;
             std::cout << "Probability: " << msg->bounding_boxes[i].probability << std::endl;
-            std::cout << "X_range: " << "[" << msg->bounding_boxes[i].xmin << "," << msg->bounding_boxes[i].xmax << std::endl;
-            std::cout << "Y_range: " << "[" << msg->bounding_boxes[i].ymin << "," << msg->bounding_boxes[i].ymax << std::endl;
+            std::cout << "X_range: " << "[" << msg->bounding_boxes[i].xmin << "," << msg->bounding_boxes[i].xmax << "]"  << std::endl;
+            std::cout << "Y_range: " << "[" << msg->bounding_boxes[i].ymin << "," << msg->bounding_boxes[i].ymax << "]"  << std::endl;
         }
     }
 

@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   darknet_ros_msgs
   object_detector_msgs
+  message_filters
 )
 
 find_package(PCL 1.10 REQUIRED)
@@ -37,3 +38,6 @@ target_link_libraries(pcl_subscriber ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(bboxes_subscriber src/bboxes_subscriber.cpp)
 target_link_libraries(bboxes_subscriber ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(test_message_filters src/test_message_filters.cpp)
+target_link_libraries(test_message_filters ${catkin_LIBRARIES} ${PCL_LIBRARIES})

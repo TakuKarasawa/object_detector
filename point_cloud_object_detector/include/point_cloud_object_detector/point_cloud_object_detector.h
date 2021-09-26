@@ -26,13 +26,13 @@ public:
     void process();
 
 private:
-    void sensor_callback(const sensor_msgs::PointCloud2ConstPtr& msg);
+    void pc_callback(const sensor_msgs::PointCloud2ConstPtr& msg);
     void bbox_callback(const darknet_ros_msgs::BoundingBoxesConstPtr& msg);
     void calc_object_position();
 
-    bool has_received_bbox = false;
     bool has_received_pcl2 = false;
-    
+    bool has_received_bbox = false;
+   
     darknet_ros_msgs::BoundingBoxes bboxes;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud {new pcl::PointCloud<pcl::PointXYZRGB>};
 

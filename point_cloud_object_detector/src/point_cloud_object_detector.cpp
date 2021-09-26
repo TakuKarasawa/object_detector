@@ -2,12 +2,12 @@
 
 PointCloudObjectDetector::PointCloudObjectDetector() : private_nh_("~")
 {
-    pc_sub_ = nh_.subscribe("/camera/depth_registered/points",1,&PointCloudObjectDetector::sensor_callback,this);
+    pc_sub_ = nh_.subscribe("/camera/depth_registered/points",1,&PointCloudObjectDetector::pc_callback,this);
     bbox_sub_ = nh_.subscribe("/darknet_ros/bounding_boxes",1,&PointCloudObjectDetector::bbox_callback,this);
     obj_pub_ = nh_.advertise<object_detector_msgs::ObjectPositions>("/object_positions",1);
 }
 
-void PointCloudObjectDetector::sensor_callback(const sensor_msgs::PointCloud2ConstPtr& msg)
+void PointCloudObjectDetector::pc_callback(const sensor_msgs::PointCloud2ConstPtr& msg)
 {
     has_received_pcl2 = true;
     cloud->points.clear();
@@ -67,10 +67,10 @@ void PointCloudObjectDetector::calc_object_position()
                 position.y = sum_y/(double)finite_count;
                 position.z = sum_z/(double)finite_count;
 
-                std::cout << "(X,Y,Z): " << "(" << sum_x << "," << sum_y << "," << sum_z << ")" << std::endl;
+                std::cout << "(X,Y,Z): " << "(" << position.x << "," << position.y << "," << position.z << ")" << std::endl;
 
-                double d = sqrt(pow(sum_x,2)+pow(sum_z,2));
-                double theta = atan2(sum_z,sum_x) - M_PI/2;
+                double d = sqrt(pow(position.x,2)+pow(position.z,2));
+                double theta = atan2(position.z,position.x) - M_PI/2;
 
                 std::cout << "distance[m]: : " << d << std::endl;
                 std::cout << "theta[rad] : " << theta << std::endl;
