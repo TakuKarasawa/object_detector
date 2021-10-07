@@ -36,6 +36,8 @@ private:
     std::string obj_topic_name;
     std::string obj_frame_name;
 
+    bool has_received_pc;
+
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;
     ros::Subscriber pc_sub_;

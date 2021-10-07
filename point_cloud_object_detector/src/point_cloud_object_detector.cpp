@@ -1,6 +1,6 @@
 #include "point_cloud_object_detector/point_cloud_object_detector.h"
 
-PointCloudObjectDetector::PointCloudObjectDetector() : private_nh_("~")
+PointCloudObjectDetector::PointCloudObjectDetector() : private_nh_("~"), has_received_pc(false)
 {
     private_nh_.param("pc_topic_name",pc_topic_name,{"/camera/depth_registered/points"});
     private_nh_.param("bbox_topic_name",bbox_topic_name,{"/darknet_ros/bounding_boxes"});
@@ -16,67 +16,73 @@ void PointCloudObjectDetector::pc_callback(const sensor_msgs::PointCloud2ConstPt
 {
     cloud->points.clear();
     pcl::fromROSMsg(*msg,*cloud);
+    has_received_pc = true;
 }
 
 void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBoxesConstPtr& msg)
 {
-    object_detector_msgs::ObjectPositions positions;
-    for(const auto &b : msg->bounding_boxes){
-        std::cout << "Object_Class: " << b.Class << std::endl;
-        std::vector<pcl::PointXYZRGB> points;
-        std::vector<std::vector<pcl::PointXYZRGB>> rearranged_points(cloud->height,std::vector<pcl::PointXYZRGB>());
-        std::vector<pcl::PointXYZRGB> values;
-        object_detector_msgs::ObjectPosition position;
+    if(has_received_pc){
+        object_detector_msgs::ObjectPositions positions;
+        for(const auto &b : msg->bounding_boxes){
+            std::cout << "Object_Class: " << b.Class << std::endl;
+            std::vector<pcl::PointXYZRGB> points;
+            std::vector<std::vector<pcl::PointXYZRGB>> rearranged_points(cloud->height,std::vector<pcl::PointXYZRGB>());
+            std::vector<pcl::PointXYZRGB> values;
+            object_detector_msgs::ObjectPosition position;
 
-        for(const auto &p : cloud->points) points.push_back(p);
+            for(const auto &p : cloud->points) points.push_back(p);
 
-        if(points.size() == cloud->width*cloud->height){
-            for(int i = 0; i < cloud->height; i++){
-                for(int j = 0; j < cloud->width; j++){
-                    rearranged_points.at(i).push_back(points.at(i*cloud->width+j));
-                }
-            }
-
-            if(!(b.xmin == 0 && b.xmax == 0)){
-                for(int x = b.xmin; x < b.xmax; x++){
-                    for(int y = b.ymin; y < b.ymax; y++){
-                        values.push_back(rearranged_points.at(y).at(x));
+            if(points.size() == cloud->width*cloud->height){
+                for(int i = 0; i < cloud->height; i++){
+                    for(int j = 0; j < cloud->width; j++){
+                        rearranged_points.at(i).push_back(points.at(i*cloud->width+j));
                     }
                 }
 
-                double sum_x = 0.0;
-                double sum_y = 0.0;
-                double sum_z = 0.0;
-                int finite_count = 0;
-                for(const auto &value : values){
-                    if(isfinite(value.x) && isfinite(value.y) && isfinite(value.z)){
-                        sum_x += value.x;
-                        sum_y += value.y;
-                        sum_z += value.z;
-                        finite_count ++;
+                std::cout << rearranged_points.size() << std::endl;
+                std::cout << rearranged_points[0].size() << std::endl;
+
+                if(!(b.xmin == 0 && b.xmax == 0)){
+                    for(int x = b.xmin; x < b.xmax; x++){
+                        for(int y = b.ymin; y < b.ymax; y++){
+                            values.push_back(rearranged_points.at(y).at(x));
+                        }
                     }
+
+                    double sum_x = 0.0;
+                    double sum_y = 0.0;
+                    double sum_z = 0.0;
+                    int finite_count = 0;
+                    for(const auto &value : values){
+                        if(isfinite(value.x) && isfinite(value.y) && isfinite(value.z)){
+                            sum_x += value.x;
+                            sum_y += value.y;
+                            sum_z += value.z;
+                            finite_count ++;
+                        }
+                    }
+
+                    positions.header.frame_id = obj_frame_name;
+                    positions.header.stamp = ros::Time::now();
+                    position.Class = b.Class;
+                    position.probability = b.probability;
+                    position.x = sum_x/(double)finite_count;
+                    position.y = sum_y/(double)finite_count;
+                    position.z = sum_z/(double)finite_count;
+
+                    double d = sqrt(pow(position.x,2)+pow(position.z,2));
+                    double theta = atan2(position.z,position.x) - M_PI/2;
+
+                    std::cout << "(X,Y,Z): " << "(" << position.x << "," << position.y << "," << position.z << ")" << std::endl;
+                    std::cout << "distance[m]: : " << d << std::endl;
+                    std::cout << "theta[rad] : " << theta << std::endl;
+                    std::cout << std::endl;
                 }
-
-                positions.header.frame_id = obj_frame_name;
-                positions.header.stamp = ros::Time::now();
-                position.Class = b.Class;
-                position.probability = b.probability;
-                position.x = sum_x/(double)finite_count;
-                position.y = sum_y/(double)finite_count;
-                position.z = sum_z/(double)finite_count;
-
-                double d = sqrt(pow(position.x,2)+pow(position.z,2));
-                double theta = atan2(position.z,position.x) - M_PI/2;
-
-                std::cout << "(X,Y,Z): " << "(" << position.x << "," << position.y << "," << position.z << ")" << std::endl;
-                std::cout << "distance[m]: : " << d << std::endl;
-                std::cout << "theta[rad] : " << theta << std::endl;
-                std::cout << std::endl;
             }
+            positions.object_position.push_back(position);
         }
-        positions.object_position.push_back(position);
+        obj_pub_.publish(positions);
     }
-    obj_pub_.publish(positions);
 }
 
 void PointCloudObjectDetector::process() { ros::spin(); }
