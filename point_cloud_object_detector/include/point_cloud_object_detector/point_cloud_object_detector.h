@@ -12,9 +12,6 @@
 #include <pcl_ros/point_cloud.h>
 #include <std_msgs/Header.h>
 
-#include <string>
-#include <vector>
-
 #include "darknet_ros_msgs/BoundingBox.h"
 #include "darknet_ros_msgs/BoundingBoxes.h"
 #include "object_detector_msgs/ObjectPosition.h"
@@ -29,20 +26,25 @@ private:
     void pc_callback(const sensor_msgs::PointCloud2ConstPtr& msg);
     void bbox_callback(const darknet_ros_msgs::BoundingBoxesConstPtr& msg);
 
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud {new pcl::PointCloud<pcl::PointXYZRGB>};
+    void downsample();
+
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
 
     std::string pc_topic_name;
     std::string bbox_topic_name;
     std::string obj_topic_name;
     std::string obj_frame_name;
 
-    bool has_received_pc;
+    bool has_received_pc_;
+    bool is_pcl_tf_;
 
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;
     ros::Subscriber pc_sub_;
     ros::Subscriber bbox_sub_;
     ros::Publisher obj_pub_;
+
+    double VOXEL_SIZE_;
 };
 
 #endif  // POINT_CLOUD_OBJECT_DETECTOR_H_

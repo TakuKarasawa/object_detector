@@ -1,11 +1,16 @@
 #include "point_cloud_object_detector/point_cloud_object_detector.h"
 
-PointCloudObjectDetector::PointCloudObjectDetector() : private_nh_("~"), has_received_pc(false)
+PointCloudObjectDetector::PointCloudObjectDetector() :
+    private_nh_("~"), has_received_pc_(false),
+    cloud(new pcl::PointCloud<pcl::PointXYZRGB>)
 {
     private_nh_.param("pc_topic_name",pc_topic_name,{"/camera/depth_registered/points"});
     private_nh_.param("bbox_topic_name",bbox_topic_name,{"/darknet_ros/bounding_boxes"});
     private_nh_.param("obj_topic_name",obj_topic_name,{"/object_positions"});
     private_nh_.param("obj_frame_name",obj_frame_name,{"base_link"});
+
+    private_nh_.param("is_pcl_tf",is_pcl_tf_,{false});
+    private_nh_.param("VOXEL_SIZE",VOXEL_SIZE_,{0.3});
 
     pc_sub_ = nh_.subscribe(pc_topic_name,1,&PointCloudObjectDetector::pc_callback,this);
     bbox_sub_ = nh_.subscribe(bbox_topic_name,1,&PointCloudObjectDetector::bbox_callback,this);
@@ -14,14 +19,26 @@ PointCloudObjectDetector::PointCloudObjectDetector() : private_nh_("~"), has_rec
 
 void PointCloudObjectDetector::pc_callback(const sensor_msgs::PointCloud2ConstPtr& msg)
 {
-    cloud->points.clear();
     pcl::fromROSMsg(*msg,*cloud);
-    has_received_pc = true;
+    has_received_pc_ = true;
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBoxesConstPtr& msg)
 {
-    if(has_received_pc){
+    if(has_received_pc_){
         object_detector_msgs::ObjectPositions positions;
         for(const auto &b : msg->bounding_boxes){
             std::cout << "Object_Class: " << b.Class << std::endl;
@@ -38,9 +55,6 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                         rearranged_points.at(i).push_back(points.at(i*cloud->width+j));
                     }
                 }
-
-                std::cout << rearranged_points.size() << std::endl;
-                std::cout << rearranged_points[0].size() << std::endl;
 
                 if(!(b.xmin == 0 && b.xmax == 0)){
                     for(int x = b.xmin; x < b.xmax; x++){
@@ -70,8 +84,8 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                     position.y = sum_y/(double)finite_count;
                     position.z = sum_z/(double)finite_count;
 
-                    double d = sqrt(pow(position.x,2)+pow(position.z,2));
-                    double theta = atan2(position.z,position.x) - M_PI/2;
+                    double d = std::sqrt(std::pow(position.x,2) + std::pow(position.z,2));
+                    double theta = std::atan2(position.z,position.x) - M_PI/2;
 
                     std::cout << "(X,Y,Z): " << "(" << position.x << "," << position.y << "," << position.z << ")" << std::endl;
                     std::cout << "distance[m]: : " << d << std::endl;
@@ -83,6 +97,16 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
         }
         obj_pub_.publish(positions);
     }
+    else std::cout << "Don't receive bbox" << std::endl;
 }
 
-void PointCloudObjectDetector::process() { ros::spin(); }
+void PointCloudObjectDetector::process()
+{ 
+    //ros::spin(); 
+
+    ros::Rate rate(1);
+    while(ros::ok()){
+        ros::spinOnce();
+        rate.sleep();
+    }
+}
