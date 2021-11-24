@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(point_cloud_object_detector)
 
+add_compile_options(-o2 -g -Wall)
+
 find_package(catkin REQUIRED COMPONENTS
   pcl_ros
   roscpp
@@ -8,20 +10,28 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   geometry_msgs
   std_msgs
+  eigen_conversions
+  tf2_geometry_msgs
+  tf2_ros
   darknet_ros_msgs
   object_detector_msgs
   message_filters
 )
 
 find_package(PCL 1.10 REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 catkin_package(
     INCLUDE_DIRS include
+    ${PCL_INCLUDE_DIRS}
+    ${Eigen3_INCLUDE_DIRS}
     LIBRARIES ${PROJECT_NAME}
 )
 
 include_directories(
     include
+    ${PCL_INCLUDE_DIRS}
+    ${Eigen3_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
 )
 
@@ -34,4 +44,4 @@ add_executable(point_cloud_object_detector_node
     src/point_cloud_object_detector.cpp
 )
 add_dependencies(point_cloud_object_detector_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(point_cloud_object_detector_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(point_cloud_object_detector_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${Eigen3_LIBRARIES})
