@@ -34,6 +34,7 @@ private:
     void bbox_callback(const darknet_ros_msgs::BoundingBoxesConstPtr& msg);
 
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_;
+    //std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clustered_clouds_;
 
     std::string pc_topic_name;
     std::string bbox_topic_name;
@@ -43,6 +44,7 @@ private:
 
     bool has_received_pc_;
     bool is_pcl_tf_;
+    bool is_visualize_;
 
     std::shared_ptr<tf2_ros::TransformBroadcaster> broadcaster_;
     std::shared_ptr<tf2_ros::Buffer> buffer_;
@@ -53,7 +55,7 @@ private:
     ros::Subscriber pc_sub_;
     ros::Subscriber bbox_sub_;
     ros::Publisher obj_pub_;
-
+    //std::vector<ros::Publisher> clustered_cloud_pubs_;
 };
 
 #endif  // POINT_CLOUD_OBJECT_DETECTOR_H_

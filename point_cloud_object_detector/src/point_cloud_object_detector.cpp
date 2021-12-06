@@ -9,7 +9,6 @@ PointCloudObjectDetector::PointCloudObjectDetector() :
     private_nh_.param("obj_topic_name",obj_topic_name,{"/object_positions"});
     private_nh_.param("obj_frame_name",obj_frame_name,{"base_link"});
     private_nh_.param("base_link_frame_id",base_link_frame_id_,{"base_link"});
-
     private_nh_.param("is_pcl_tf",is_pcl_tf_,{false});
 
     pc_sub_ = nh_.subscribe(pc_topic_name,1,&PointCloudObjectDetector::pc_callback,this);
@@ -43,6 +42,19 @@ void PointCloudObjectDetector::pc_callback(const sensor_msgs::PointCloud2ConstPt
 void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBoxesConstPtr& msg)
 {
     if(has_received_pc_){
+        // create clustered cloud
+        /*
+        clustered_clouds_.resize(msg->bounding_boxes.size());
+        for(size_t i = 0; i < msg->bounding_boxes.size(); i++){
+            pcl::PointCloud<pcl::PointXYZRGB>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZRGB>);
+            clustered_clouds_[i] = tmp;
+        }
+        clustered_cloud_pubs_.resize(msg->bounding_boxes.size());
+        for(size_t i = 0; i < msg->bounding_boxes.size(); i++){
+            clustered_cloud_pubs_[i] = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB>>("/cluster/" + std::to_string(i),1);
+        }
+        */
+
         object_detector_msgs::ObjectPositions positions;
         for(const auto &b : msg->bounding_boxes){
             std::cout << "Object_Class: " << b.Class << std::endl;
@@ -50,6 +62,7 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
             std::vector<std::vector<pcl::PointXYZRGB>> rearranged_points(cloud_->height,std::vector<pcl::PointXYZRGB>());
             std::vector<pcl::PointXYZRGB> values;
             object_detector_msgs::ObjectPosition position;
+
 
             for(const auto &p : cloud_->points) points.push_back(p);
 
@@ -67,6 +80,12 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                         }
                     }
 
+                    // create point cloud
+                    //pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+                    //cloud->height = cloud_->height;
+                    //cloud->width = cloud->width;
+                    //cloud->header.frame_id = base_link_frame_id_;
+                    
                     double sum_x = 0.0;
                     double sum_y = 0.0;
                     double sum_z = 0.0;
@@ -77,8 +96,11 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                             sum_y += value.y;
                             sum_z += value.z;
                             finite_count ++;
+                            //cloud->points.push_back(value);
                         }
                     }
+
+                    //clustered_clouds_.push_back(cloud);
 
                     positions.header.frame_id = obj_frame_name;
                     positions.header.stamp = ros::Time::now();
@@ -103,6 +125,16 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
             positions.object_position.push_back(position);
         }
         obj_pub_.publish(positions);
+        
+        // publish
+        /*
+        for(size_t i = 0; i < msg->bounding_boxes.size(); i++){
+            auto cloud_msg = clustered_clouds_[i]->makeShared();
+            cloud_msg->header.frame_id = base_link_frame_id_;
+            pcl_conversions::toPCL(ros::Time::now(),cloud_msg->header.stamp);
+            clustered_cloud_pubs_[i].publish(cloud_msg);
+        }
+        */
     }
     else std::cout << "Don't receive bbox" << std::endl;
 }

@@ -13,7 +13,6 @@
         <remap from="bbox_topic_name" to="/darknet_ros/bounding_boxes" />
         <remap from="obj_topic_name" to="/object_positions" />
         <remap from="obj_frame_name" to="/base_link" />
-        <param name="VOXEL_SIZE" value="0.01" />
     </node>
 
 </launch>
