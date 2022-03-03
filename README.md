@@ -8,7 +8,7 @@
 
 ## Topics
 ### Subscribed topics
-- /darknet_ros/bounding_boxes (darknet_ros_msgs/BoundingBoxes)
+- /bounding_boxes (darknet_ros_msgs/BoundingBoxes)
 - /camera/depth_registered/points (sensor_msgs/PointCloud2)
 
 ### Published topics
@@ -22,5 +22,5 @@ roslaunch darknet_ros yolo_v3.launch
 
 - start point_cloud_object_detector_node
 ```
-roslaunch point_cloud_object_detector point_cloud_object_detector_node.launch
+roslaunch point_cloud_object_detector point_cloud_object_detector.launch
 ```
