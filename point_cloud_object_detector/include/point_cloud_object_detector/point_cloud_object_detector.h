@@ -30,7 +30,7 @@ private:
     void pc_callback(const sensor_msgs::PointCloud2ConstPtr& msg);
     void bbox_callback(const darknet_ros_msgs::BoundingBoxesConstPtr& msg);
     void clustering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr& input_cloud,
-                    pcl::PointCloud<pcl::PointXYZRGB>::Ptr& output_cloud); 
+                    pcl::PointCloud<pcl::PointXYZRGB>::Ptr& output_cloud);
 
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;
