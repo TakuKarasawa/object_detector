@@ -2,20 +2,18 @@
 
 PointCloudObjectDetector::PointCloudObjectDetector() :
     private_nh_("~"),
-    has_received_pc_(false),
-    cloud_(new pcl::PointCloud<pcl::PointXYZRGB>)
+    cloud_(new pcl::PointCloud<pcl::PointXYZRGB>),
+    has_received_pc_(false)
 {
+    private_nh_.param("CAMERA_FRAME_ID",CAMERA_FRAME_ID_,{std::string("base_link")});
+    private_nh_.param("IS_CLUSTERING",IS_CLUSTERING_,{true});
+    private_nh_.param("IS_PCL_TF",IS_PCL_TF_,{false});
     private_nh_.param("HZ",HZ_,{10});
     private_nh_.param("CLUSTER_TOLERANCE",CLUSTER_TOLERANCE_,{0.02});
     private_nh_.param("MIN_CLUSTER_SIZE",MIN_CLUSTER_SIZE_,{100});
 
-    private_nh_.param("base_link_frame_id",base_link_frame_id_,{"base_link"});
-    private_nh_.param("is_clustering",is_clustering_,{true});
-    private_nh_.param("is_pcl_tf",is_pcl_tf_,{false});
-
     pc_sub_ = nh_.subscribe("/camera/depth_registered/points",1,&PointCloudObjectDetector::pc_callback,this);
     bbox_sub_ = nh_.subscribe("/bounding_boxes",1,&PointCloudObjectDetector::bbox_callback,this);
-
     obj_pub_ = nh_.advertise<object_detector_msgs::ObjectPositions>("/object_positions",1);
 
     buffer_.reset(new tf2_ros::Buffer);
@@ -27,11 +25,10 @@ void PointCloudObjectDetector::pc_callback(const sensor_msgs::PointCloud2ConstPt
 {
     cloud_->clear();
     pcl::fromROSMsg(*msg,*cloud_);
-    pc_frame_id_ = msg->header.frame_id;
-    if(is_pcl_tf_){
+    if(IS_PCL_TF_){
         geometry_msgs::TransformStamped transform_stamped;
         try{
-            transform_stamped = buffer_->lookupTransform(base_link_frame_id_,msg->header.frame_id,ros::Time(0));
+            transform_stamped = buffer_->lookupTransform(CAMERA_FRAME_ID_,msg->header.frame_id,ros::Time(0));
         }
         catch(tf2::TransformException& ex){
             ROS_WARN("%s", ex.what());
@@ -74,7 +71,7 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                     double sum_y = 0.0;
                     double sum_z = 0.0;
                     int finite_count = 0;
-                    if(is_clustering_){
+                    if(IS_CLUSTERING_){
                         pcl::PointCloud<pcl::PointXYZRGB>::Ptr rearranged_cloud (new pcl::PointCloud<pcl::PointXYZRGB>());
                         rearranged_cloud->width = bbox.xmax - bbox.xmin;
                         rearranged_cloud->height = bbox.ymax - bbox.ymin;
@@ -82,7 +79,7 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
 
                         int c = 0;
                         for(const auto &value : values){
-                            if(!isnan(value.x) && !isnan(value.y) && !isnan(value.z)){
+                            if(!std::isnan(value.x) && !std::isnan(value.y) && !std::isnan(value.z)){
                                 rearranged_cloud->points.at(c).x = value.x;
                                 rearranged_cloud->points.at(c).y = value.y;
                                 rearranged_cloud->points.at(c).z = value.z;
@@ -97,7 +94,7 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                         clustering(rearranged_cloud,clustered_cloud);
 
                         for(const auto &p : clustered_cloud->points){
-                            if(isfinite(p.x) && isfinite(p.y) && isfinite(p.z)){
+                            if(std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z)){
                                 sum_x += p.x;
                                 sum_y += p.y;
                                 sum_z += p.z;
@@ -107,7 +104,7 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                     }
                     else{
                         for(const auto &value : values){
-                            if(isfinite(value.x) && isfinite(value.y) && isfinite(value.z)){
+                            if(std::isfinite(value.x) && std::isfinite(value.y) && std::isfinite(value.z)){
                                 sum_x += value.x;
                                 sum_y += value.y;
                                 sum_z += value.z;
@@ -116,7 +113,7 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                         }
                     }
 
-                    positions.header.frame_id = base_link_frame_id_;
+                    positions.header.frame_id = CAMERA_FRAME_ID_;
                     positions.header.stamp = ros::Time::now();
                     position.Class = bbox.Class;
                     position.probability = bbox.probability;

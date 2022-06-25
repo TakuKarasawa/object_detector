@@ -14,8 +14,10 @@
 #include <pcl/point_types_conversion.h>
 #include <pcl_ros/transforms.h>
 
+// Eigen
 #include <Eigen/Dense>
 
+// Custom msg
 #include "darknet_ros_msgs/BoundingBox.h"
 #include "darknet_ros_msgs/BoundingBoxes.h"
 #include "object_detector_msgs/ObjectPosition.h"
@@ -32,24 +34,31 @@ private:
     void clustering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr& input_cloud,
                     pcl::PointCloud<pcl::PointXYZRGB>::Ptr& output_cloud);
 
+    // node handle
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;
+
+    // subscriber
     ros::Subscriber pc_sub_;
     ros::Subscriber bbox_sub_;
+
+    // publisher
     ros::Publisher obj_pub_;
 
+    // point cloud
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_;
 
+    // tf
     boost::shared_ptr<tf2_ros::Buffer> buffer_;
     boost::shared_ptr<tf2_ros::TransformListener> listener_;
     boost::shared_ptr<tf2_ros::TransformBroadcaster> broadcaster_;
-
-    std::string base_link_frame_id_;
-    std::string pc_frame_id_;
-    bool is_pcl_tf_;
-    bool is_clustering_;
+   
     bool has_received_pc_;
 
+    // parameter
+    std::string CAMERA_FRAME_ID_;
+    bool IS_CLUSTERING_;
+    bool IS_PCL_TF_;
     int HZ_;
     static const int CLUSTER_NUM_ = 3;
     double CLUSTER_TOLERANCE_;

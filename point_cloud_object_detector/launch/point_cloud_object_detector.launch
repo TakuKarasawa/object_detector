@@ -13,8 +13,8 @@
 
         <!-- parameters -->
         <param name="HZ" value="$(arg hz)" />
-        <param name="is_clustering" value="$(arg is_clustering)" />
-        <param name="is_pcl_tf" value="$(arg is_pcl_tf)" />
+        <param name="IS_CLUSTERING" value="$(arg is_clustering)" />
+        <param name="IS_PCL_TF" value="$(arg is_pcl_tf)" />
     </node>
 
 </launch>
