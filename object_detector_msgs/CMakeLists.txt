@@ -12,6 +12,10 @@ add_message_files(
     FILES
     ObjectPosition.msg
     ObjectPositions.msg
+    BoundingBox2D.msg
+    BoundingBox2DArray.msg
+    BoundingBox3D.msg
+    BoundingBox3DArray.msg
 )
 
 generate_messages(

@@ -52,7 +52,7 @@ private:
     boost::shared_ptr<tf2_ros::Buffer> buffer_;
     boost::shared_ptr<tf2_ros::TransformListener> listener_;
     boost::shared_ptr<tf2_ros::TransformBroadcaster> broadcaster_;
-   
+
     bool has_received_pc_;
 
     // parameter

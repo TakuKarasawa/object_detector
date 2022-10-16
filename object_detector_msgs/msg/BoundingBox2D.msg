@@ -1,0 +1,9 @@
+string name
+float64 probability
+float64 x_min
+float64 x_max
+float64 y_min
+float64 y_max
+float64 x
+float64 y
+float64 theta
