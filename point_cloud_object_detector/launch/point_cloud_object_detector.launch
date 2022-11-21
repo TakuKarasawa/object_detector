@@ -1,20 +1,21 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="is_pcl_tf" default="false" />
+    <arg name="is_pcl_tf"     default="false" />
     <arg name="is_clustering" default="false" />
-    <arg name="hz" default="1" />
+    <arg name="hz"            default="1" />
 
     <!-- point_cloud_object_detector_node -->
     <node pkg="point_cloud_object_detector" type="point_cloud_object_detector_node" name="object_detector" output="screen" >
-        <!-- topic name -->
-        <remap from="/camera/depth_registered/points" to="/camera/depth_registered/points" />
-        <remap from="/bounding_boxes" to="/darknet_ros/bounding_boxes" />
-        <remap from="/object_positions" to="/object_positions" />
+        <!-- remap -->
+        <remap from="pc_in"    to="/camera/depth_registered/points" />
+        <remap from="bbox_in"  to="/darknet_ros/bounding_boxes" />
+        <remap from="obj_in"   to="/object_positions" />
+        <remap from="bbox_out" to="/object_bbox" />
 
-        <!-- parameters -->
-        <param name="HZ" value="$(arg hz)" />
+        <!-- params -->
+        <param name="HZ"            value="$(arg hz)" />
         <param name="IS_CLUSTERING" value="$(arg is_clustering)" />
-        <param name="IS_PCL_TF" value="$(arg is_pcl_tf)" />
+        <param name="IS_PCL_TF"     value="$(arg is_pcl_tf)" />
     </node>
 
 </launch>

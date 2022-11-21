@@ -1,20 +1,21 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="roomba" default="roomba1" />
-    <arg name="is_pcl_tf" default="false" />
+    <arg name="roomba"        default="roomba1" />
+    <arg name="is_pcl_tf"     default="false" />
     <arg name="is_clustering" default="false" />
-    <arg name="hz" default="10" />
+    <arg name="hz"            default="10" />
 
     <!-- point_cloud_object_detector_node -->
     <node pkg="point_cloud_object_detector" type="point_cloud_object_detector_node" name="object_detector" output="screen" >
-        <!-- topic name -->
-        <remap from="/camera/depth_registered/points" to="$(arg roomba)/camera/depth_registered/points" />
-        <remap from="/bounding_boxes" to="$(arg roomba)/bounding_boxes" />
-        <remap from="/object_positions" to="$(arg roomba)/object_positions" />
+        <!-- remap -->
+        <remap from="pc_in"    to="$(arg roomba)/camera/depth_registered/points" />
+        <remap from="bbox_in"  to="$(arg roomba)/bounding_boxes" />
+        <remap from="obj_in"   to="$(arg roomba)/object_positions" />
+        <remap from="bbox_out" to="$(arg roomba)/object_bbox" />
 
-        <!-- parameters -->
-        <param name="HZ" value="$(arg hz)" />
-        <param name="IS_PCL_TF_" value="$(arg is_pcl_tf)" />
+        <!-- params -->
+        <param name="HZ"            value="$(arg hz)" />
+        <param name="IS_PCL_TF_"    value="$(arg is_pcl_tf)" />
         <param name="IS_CLUSTERING" value="$(arg is_clustering)" />
     </node>
 

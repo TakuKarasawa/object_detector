@@ -18,10 +18,9 @@
 #include <Eigen/Dense>
 
 // Custom msg
-#include "darknet_ros_msgs/BoundingBox.h"
 #include "darknet_ros_msgs/BoundingBoxes.h"
-#include "object_detector_msgs/ObjectPosition.h"
 #include "object_detector_msgs/ObjectPositions.h"
+#include "object_detector_msgs/BoundingBox3DArray.h"
 
 class PointCloudObjectDetector {
 public:
@@ -44,6 +43,7 @@ private:
 
     // publisher
     ros::Publisher obj_pub_;
+    ros::Publisher bbox_pub_;
 
     // point cloud
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_;

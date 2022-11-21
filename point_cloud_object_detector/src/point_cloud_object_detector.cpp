@@ -12,9 +12,11 @@ PointCloudObjectDetector::PointCloudObjectDetector() :
     private_nh_.param("CLUSTER_TOLERANCE",CLUSTER_TOLERANCE_,{0.02});
     private_nh_.param("MIN_CLUSTER_SIZE",MIN_CLUSTER_SIZE_,{100});
 
-    pc_sub_ = nh_.subscribe("/camera/depth_registered/points",1,&PointCloudObjectDetector::pc_callback,this);
-    bbox_sub_ = nh_.subscribe("/bounding_boxes",1,&PointCloudObjectDetector::bbox_callback,this);
-    obj_pub_ = nh_.advertise<object_detector_msgs::ObjectPositions>("/object_positions",1);
+    pc_sub_ = nh_.subscribe("pc_in",1,&PointCloudObjectDetector::pc_callback,this);
+    bbox_sub_ = nh_.subscribe("bbox_in",1,&PointCloudObjectDetector::bbox_callback,this);
+    
+    obj_pub_ = nh_.advertise<object_detector_msgs::ObjectPositions>("obj_in",1);
+    bbox_pub_ = nh_.advertise<object_detector_msgs::BoundingBox3DArray>("bbox_out",1);
 
     buffer_.reset(new tf2_ros::Buffer);
     listener_.reset(new tf2_ros::TransformListener(*buffer_));
@@ -44,12 +46,14 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
 {
     if(has_received_pc_){
         object_detector_msgs::ObjectPositions positions;
+        object_detector_msgs::BoundingBox3DArray bboxes_3d;
         for(const auto &bbox : msg->bounding_boxes){
             std::cout << "Object_Class: " << bbox.Class << std::endl;
             std::vector<pcl::PointXYZRGB> points;
             std::vector<std::vector<pcl::PointXYZRGB>> rearranged_points(cloud_->height,std::vector<pcl::PointXYZRGB>());
             std::vector<pcl::PointXYZRGB> values;
             object_detector_msgs::ObjectPosition position;
+            object_detector_msgs::BoundingBox3D bbox_3d;
 
             for(const auto &p : cloud_->points) points.push_back(p);
 
@@ -71,6 +75,10 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                     double sum_y = 0.0;
                     double sum_z = 0.0;
                     int finite_count = 0;
+
+                    double x_max, x_min;
+                    double y_max, y_min;
+                    double z_max, z_min;
                     if(IS_CLUSTERING_){
                         pcl::PointCloud<pcl::PointXYZRGB>::Ptr rearranged_cloud (new pcl::PointCloud<pcl::PointXYZRGB>());
                         rearranged_cloud->width = bbox.xmax - bbox.xmin;
@@ -103,16 +111,27 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                         }
                     }
                     else{
+                        x_max, x_min = values.at(0).x;
+                        y_max, y_min = values.at(0).y;
+                        z_max, z_min = values.at(0).z;
                         for(const auto &value : values){
                             if(std::isfinite(value.x) && std::isfinite(value.y) && std::isfinite(value.z)){
                                 sum_x += value.x;
                                 sum_y += value.y;
                                 sum_z += value.z;
+
+                                if(x_max < value.x) x_max = value.x;
+                                if(x_min > value.x) x_min = value.x;
+                                if(y_max < value.y) y_max = value.y;
+                                if(y_min > value.y) y_min = value.y;
+                                if(z_max < value.z) z_max = value.z;
+                                if(z_min > value.z) z_min = value.z;
                                 finite_count ++;
                             }
                         }
                     }
 
+                    // object_positions
                     positions.header.frame_id = CAMERA_FRAME_ID_;
                     positions.header.stamp = ros::Time::now();
                     position.Class = bbox.Class;
@@ -128,11 +147,25 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                     std::cout << "distance[m]: : " << d << std::endl;
                     std::cout << "theta[rad] : " << theta << std::endl;
                     std::cout << std::endl;
+
+                    bbox_3d.name = bbox.Class;
+                    bbox_3d.probability = bbox.probability;
+                    bbox_3d.x = position.x;
+                    bbox_3d.x_max = x_max;
+                    bbox_3d.x_min = x_min;
+                    bbox_3d.y = position.y;
+                    bbox_3d.y_max = y_max;
+                    bbox_3d.y_min = y_min;
+                    bbox_3d.z = position.z;
+                    bbox_3d.z_max = z_max;
+                    bbox_3d.z_min = z_min;
                 }
             }
             positions.object_position.push_back(position);
+            bboxes_3d.boxes.emplace_back(bbox_3d);
         }
         obj_pub_.publish(positions);
+        bbox_pub_.publish(bboxes_3d);
     }
 }
 
