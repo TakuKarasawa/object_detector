@@ -55,19 +55,19 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
             object_detector_msgs::ObjectPosition position;
             object_detector_msgs::BoundingBox3D bbox_3d;
 
-            for(const auto &p : cloud_->points) points.push_back(p);
+            for(const auto &p : cloud_->points) points.emplace_back(p);
 
             if(points.size() == cloud_->width*cloud_->height){
                 for(int i = 0; i < cloud_->height; i++){
                     for(int j = 0; j < cloud_->width; j++){
-                        rearranged_points.at(i).push_back(points.at(i*cloud_->width+j));
+                        rearranged_points.at(i).emplace_back(points.at(i*cloud_->width+j));
                     }
                 }
 
                 if(!(bbox.xmin == 0 && bbox.xmax == 0)){
                     for(int x = bbox.xmin; x < bbox.xmax; x++){
                         for(int y = bbox.ymin; y < bbox.ymax; y++){
-                            values.push_back(rearranged_points.at(y).at(x));
+                            values.emplace_back(rearranged_points.at(y).at(x));
                         }
                     }
 
@@ -101,6 +101,7 @@ void PointCloudObjectDetector::bbox_callback(const darknet_ros_msgs::BoundingBox
                         pcl::PointCloud<pcl::PointXYZRGB>::Ptr clustered_cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
                         clustering(rearranged_cloud,clustered_cloud);
 
+                        if(clustered_cloud->points.empty()) return;
                         for(const auto &p : clustered_cloud->points){
                             if(std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z)){
                                 sum_x += p.x;
@@ -189,10 +190,12 @@ void PointCloudObjectDetector::clustering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
     ex->setNegative(false);
 
     pcl::PointIndices::Ptr tmp_clustered_indices (new pcl::PointIndices);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr tmp_cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
     if(indices.size() <= 1) return;
     *tmp_clustered_indices = indices[0];
     ex->setIndices(tmp_clustered_indices);
-    ex->filter(*output_cloud);
+    ex->filter(*tmp_cloud);
+    output_cloud = tmp_cloud;
 }
 
 void PointCloudObjectDetector::process()
