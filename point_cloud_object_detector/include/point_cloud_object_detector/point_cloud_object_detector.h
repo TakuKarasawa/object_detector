@@ -20,7 +20,6 @@
 // Custom msg
 #include "darknet_ros_msgs/BoundingBoxes.h"
 #include "object_detector_msgs/ObjectPositions.h"
-#include "object_detector_msgs/BoundingBox3DArray.h"
 
 class PointCloudObjectDetector {
 public:
@@ -30,8 +29,10 @@ public:
 private:
     void pc_callback(const sensor_msgs::PointCloud2ConstPtr& msg);
     void bbox_callback(const darknet_ros_msgs::BoundingBoxesConstPtr& msg);
-    void clustering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr& input_cloud,
-                    pcl::PointCloud<pcl::PointXYZRGB>::Ptr& output_cloud);
+    
+    void convert_from_vec_to_pc(std::vector<pcl::PointXYZRGB>& vec,pcl::PointCloud<pcl::PointXYZRGB>::Ptr& pc);
+    void clustering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr& input_cloud,pcl::PointCloud<pcl::PointXYZRGB>::Ptr& output_cloud);
+    void calc_position(pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud,double& x,double& y,double& z);
 
     // node handle
     ros::NodeHandle nh_;
@@ -43,7 +44,8 @@ private:
 
     // publisher
     ros::Publisher obj_pub_;
-    ros::Publisher bbox_pub_;
+    ros::Publisher pc_pub_;
+    ros::Publisher cls_pc_pub_;
 
     // point cloud
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_;
@@ -53,12 +55,15 @@ private:
     boost::shared_ptr<tf2_ros::TransformListener> listener_;
     boost::shared_ptr<tf2_ros::TransformBroadcaster> broadcaster_;
 
+    // buffer
+    std::string pc_frame_id_;
     bool has_received_pc_;
 
     // parameter
     std::string CAMERA_FRAME_ID_;
     bool IS_CLUSTERING_;
     bool IS_PCL_TF_;
+    bool IS_DEBUG_;
     int HZ_;
     static const int CLUSTER_NUM_ = 3;
     double CLUSTER_TOLERANCE_;
