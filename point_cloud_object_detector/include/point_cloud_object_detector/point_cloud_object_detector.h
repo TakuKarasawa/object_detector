@@ -7,12 +7,14 @@
 #include <tf2_eigen/tf2_eigen.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
+#include <pcl_ros/transforms.h>
+
+// pcl
 #include <pcl_ros/point_cloud.h>
 #include <pcl/kdtree/kdtree.h>
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/point_types_conversion.h>
-#include <pcl_ros/transforms.h>
 
 // Eigen
 #include <Eigen/Dense>
@@ -21,6 +23,8 @@
 #include "darknet_ros_msgs/BoundingBoxes.h"
 #include "object_detector_msgs/ObjectPositions.h"
 
+namespace object_detector
+{
 class PointCloudObjectDetector {
 public:
     PointCloudObjectDetector();
@@ -69,5 +73,6 @@ private:
     double CLUSTER_TOLERANCE_;
     double MIN_CLUSTER_SIZE_;
 };
+} // object_detector
 
 #endif  // POINT_CLOUD_OBJECT_DETECTOR_H_

@@ -4,29 +4,29 @@ project(point_cloud_object_detector)
 # add_compile_options(-std=c++11 -O2 -g -Wall)
 
 find_package(catkin REQUIRED COMPONENTS
+  darknet_ros_msgs
+  geometry_msgs
+  object_detector_msgs
   pcl_ros
   roscpp
   rospy
   sensor_msgs
-  geometry_msgs
   std_msgs
-  darknet_ros_msgs
-  object_detector_msgs
 )
 
 # PCL
 find_package(PCL 1.10 REQUIRED)
 
 catkin_package(
-    INCLUDE_DIRS include
-    LIBRARIES ${PROJECT_NAME}
-    ${PCL_INCLUDE_DIRS}
+  INCLUDE_DIRS include
+  ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
 include_directories(
-    include
-    ${catkin_INCLUDE_DIRS}
-    ${PCL_INCLUDE_DIRS}
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
 # point_cloud_object_detector_node

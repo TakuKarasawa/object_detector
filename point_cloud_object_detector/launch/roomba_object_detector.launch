@@ -12,7 +12,7 @@
         <!-- remap -->
         <remap from="pc_in"      to="$(arg roomba)/camera/depth_registered/points" />
         <remap from="bbox_in"    to="$(arg roomba)/bounding_boxes" />
-        <remap from="obj_in"     to="$(arg roomba)/object_positions" />
+        <remap from="obj_out"    to="$(arg roomba)/object_positions" />
         <remap from="pc_out"     to="$(arg roomba)/pc" />
         <remap from="cls_pc_out" to="$(arg roomba)/cls_pc" />
 

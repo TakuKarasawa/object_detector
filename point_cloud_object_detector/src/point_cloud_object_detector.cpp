@@ -1,5 +1,7 @@
 #include "point_cloud_object_detector/point_cloud_object_detector.h"
 
+using namespace object_detector;
+
 PointCloudObjectDetector::PointCloudObjectDetector() :
     private_nh_("~"),
     cloud_(new pcl::PointCloud<pcl::PointXYZRGB>),
@@ -16,7 +18,7 @@ PointCloudObjectDetector::PointCloudObjectDetector() :
     pc_sub_ = nh_.subscribe("pc_in",1,&PointCloudObjectDetector::pc_callback,this);
     bbox_sub_ = nh_.subscribe("bbox_in",1,&PointCloudObjectDetector::bbox_callback,this);
     
-    obj_pub_ = nh_.advertise<object_detector_msgs::ObjectPositions>("obj_in",1);
+    obj_pub_ = nh_.advertise<object_detector_msgs::ObjectPositions>("obj_out",1);
     
     private_nh_.param("IS_DEBUG",IS_DEBUG_,{false});
     if(IS_DEBUG_){
